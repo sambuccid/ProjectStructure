@@ -5,10 +5,10 @@ ProjectStructure is a library used to define a set or rules against the code to 
 Each class or method can be tagged and then you can build the rules agains a tag, a particular package or a specific class or any combination of them.
 
 Some examples of possible rules:
-Each method on a class tagged as "Util" should be static and that it should not have any field
-Each field of a class tagged as "Entity" should be private
-No method in classes in the package "org.example.controller" should ever directly call any class inside the package "org.example.dao"
-Each parameter in a method tagged as "immutable" should be final and the method never do an assignment or call another method not tagged as "immutable"
+* Each method on a class tagged as "Util" should be static and that it should not have any field
+* Each field of a class tagged as "Entity" should be private
+* No method in classes in the package "org.example.controller" should ever directly call any class inside the package "org.example.dao"
+* Each parameter in a method tagged as "immutable" should be final and the method never do an assignment or call another method not tagged as "immutable"
 
 You can decide if a rule completely breaks the compilation of the code, or if it just throws some warnings.
 
