@@ -13,5 +13,6 @@ Some examples of possible rules:
 You can decide if a rule completely breaks the compilation of the code, or if it just throws some warnings.
 
 Often happens that with the time, maybe for a team change or a rushing developer, some code that is not consistent with the project gets created, a functionality gets created again from scratch just because no one knew it was present in the code, or some variables gets changed from places that should not change them etc..., this can create bugs, unclear code or just a waste of time.
+
 This library aims to fix some of those issues and enables to mimic some functionalities of other programming languages when needed.
 
