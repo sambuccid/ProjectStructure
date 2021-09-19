@@ -1,35 +1,39 @@
 package com.sambccd.ProjectStructure.selection;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.reflections.Reflections;
-
 import com.sambccd.ProjectStructure.Tag;
+import com.sambccd.ProjectStructure.utils.ClassCacheMap;
 import com.sambccd.ProjectStructure.utils.HashMapWithSet;
 
 public class SelectionUtils {
-	private static SelectionUtils instance = new SelectionUtils();
-	static void setInstance(SelectionUtils ins){ //visible for testing purposes
-		instance=ins;
+	private static String mainPackage = null;
+	//--Just for testing purposes--
+	static void setMainPackage(String mp){
+		mainPackage=mp;
+		newCacheOfAllClasses();
 	}
-	static void resetInstance(){
-		instance = new SelectionUtils();
+	static void resetMainPackage(){
+		mainPackage=null;
+		newCacheOfAllClasses();
 	}
-	private static Map<String,Set<Class>> cacheOfTaggedClasses = null;
-	private static void populateCache(){
-		if(cacheOfTaggedClasses == null){
-			Set<Class<?>> classes = getAllTaggedClasses();
-			cacheOfTaggedClasses = getMapClassesByTag(classes);
-		}
-	}
+	//------------------------------
+
+	//cache that holds all classes and is possible to query by tag or package
+	private static ClassCacheMap cacheOfAllClasses;
+	private static void newCacheOfAllClasses(){ cacheOfAllClasses = new ClassCacheMap(mainPackage); };
+	static { newCacheOfAllClasses(); }
 	
 	public static Set<Object> selectByTag(String tag){
-		populateCache();
-		return new HashSet<>(cacheOfTaggedClasses.get(tag));
+		cacheOfAllClasses.populate();
+		return new HashSet<>(cacheOfAllClasses.getByTag(tag));
+	}
+	
+	public static Set<Object> selectByPackage(String pkg){
+		cacheOfAllClasses.populate();
+		return new HashSet<>(cacheOfAllClasses.getByPackage(pkg));
 	}
 	
 	
@@ -41,16 +45,5 @@ public class SelectionUtils {
 			map.putInSet(tagName,c);
 		}
 		return map;
-	}
-	
-	public static Set<Class<?>> getAllTaggedClasses(){
-		Reflections r = new Reflections(instance.getMainPackage());
-		Set<Class<?>> classes = r.getTypesAnnotatedWith(Tag.class);
-		return classes;
-	}
-	
-	
-	public String getMainPackage(){
-		return null;
 	}
 }

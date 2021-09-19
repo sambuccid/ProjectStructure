@@ -1,4 +1,4 @@
-package com.sambccd.ProjectStructure.testcode.testselection;
+package com.sambccd.ProjectStructure.testcode.testselection.bytag;
 
 import com.sambccd.ProjectStructure.Tag;
 
