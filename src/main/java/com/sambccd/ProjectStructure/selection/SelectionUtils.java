@@ -1,9 +1,10 @@
 package com.sambccd.ProjectStructure.selection;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.sambccd.ProjectStructure.Tag;
 import com.sambccd.ProjectStructure.utils.ClassCacheMap;
 import com.sambccd.ProjectStructure.utils.HashMapWithSet;
@@ -26,14 +27,25 @@ public class SelectionUtils {
 	private static void newCacheOfAllClasses(){ cacheOfAllClasses = new ClassCacheMap(mainPackage); };
 	static { newCacheOfAllClasses(); }
 	
-	public static Set<Object> selectByTag(String tag){
+	public static Set<Class<?>> selectByTag(String tag){
 		cacheOfAllClasses.populate();
-		return new HashSet<>(cacheOfAllClasses.getByTag(tag));
+		return Collections.unmodifiableSet(cacheOfAllClasses.getByTag(tag));
 	}
 	
-	public static Set<Object> selectByPackage(String pkg){
+	public static Set<Class<?>> selectByPackage(String pkg){
 		cacheOfAllClasses.populate();
-		return new HashSet<>(cacheOfAllClasses.getByPackage(pkg));
+		return Collections.unmodifiableSet(cacheOfAllClasses.getByPackage(pkg));
+	}
+	
+	public static Set<Class<?>> selectByPackageAndTag(String pkg, String tag){
+		cacheOfAllClasses.populate();
+		Set<Class<?>> byTag = cacheOfAllClasses.getByTag(tag);
+		Set<Class<?>> byPackage = cacheOfAllClasses.getByPackage(pkg);
+		if(byTag.size()<byPackage.size()){
+			return Sets.intersection(byTag, byPackage);
+		} else {
+			return Sets.intersection(byPackage, byTag);
+		}
 	}
 	
 	
