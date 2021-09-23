@@ -68,6 +68,23 @@ public class TestSelection {
 		assertFalse(selectedObjects.contains(ClassOutsidePackageWithoutTag.class));
 	}
 	
+	@Test
+	public void testSelectionByPackageAndMultipleTags(){
+		//look at testcode.testselection.bypackageandtag to see the code being scan
+		setSelectionSubPackage("bypackageandtag");
+		String packagePath = mainPkg + ".bypackageandtag.thepackage";
+		String tagName = "tag";
+		String differentTagName = "differentTag";
+		Set<Class<?>> selectedObjects = SelectionUtils.selectByPackageAndAllTags(packagePath, tagName, differentTagName);
+		
+		assertTrue(selectedObjects.contains(ClassInsidePackageWithTag.class));
+		assertTrue(selectedObjects.contains(ClassInsidePackageWithDifferentTag.class));
+		assertFalse(selectedObjects.contains(ClassInsidePackageWithoutTag.class));
+		assertFalse(selectedObjects.contains(ClassOutsidePackageWithTag.class));
+		assertFalse(selectedObjects.contains(ClassOutsidePackageWithDifferentTag.class));
+		assertFalse(selectedObjects.contains(ClassOutsidePackageWithoutTag.class));
+	}
+	
 	public void setSelectionSubPackage(String subPkg){
 		SelectionUtils.setMainPackage(mainPkg + "." + subPkg);
 	}
