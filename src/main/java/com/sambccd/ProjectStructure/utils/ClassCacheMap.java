@@ -30,8 +30,10 @@ public class ClassCacheMap {
 		for(Class<?> clss:classes){
 			//cache tagged classes
 			if(clss.isAnnotationPresent(Tag.class)){
-				String tagName = clss.getAnnotation(Tag.class).value();
-				cacheByTag.putInSet(tagName, clss);
+				String[] tagNames = clss.getAnnotation(Tag.class).value();
+				for(String tagName:tagNames){
+					cacheByTag.putInSet(tagName, clss);
+				}
 			}
 			
 			//cache packages

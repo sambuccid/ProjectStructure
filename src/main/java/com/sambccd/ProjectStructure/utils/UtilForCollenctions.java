@@ -1,6 +1,8 @@
 package com.sambccd.ProjectStructure.utils;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -28,5 +30,15 @@ public class UtilForCollenctions {
 		} else {
 			return Sets.intersection(set2, set1);
 		}
+	}
+	
+	public static void orderCollectionsBySize(List<Collection> listOfCollections){
+		Comparator<Collection> sortBySize = new Comparator<Collection>() {
+			public int compare(Collection o1, Collection o2) {
+		       return Integer.compare(o1.size(), o2.size());
+		    }
+		};
+		
+		Collections.sort(listOfCollections, sortBySize);
 	}
 }

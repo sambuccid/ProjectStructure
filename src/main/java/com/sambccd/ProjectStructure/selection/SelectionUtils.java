@@ -1,6 +1,7 @@
 package com.sambccd.ProjectStructure.selection;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -48,7 +49,7 @@ public class SelectionUtils {
 		return UtilForCollenctions.intersectionOfSets(byTag, byPackage);
 	}
 	
-	public static Set<Class<?>> selectByPackageAndAllTags(String pkg, String... tags){
+	public static Set<Class<?>> selectByPackageAndOneOfTags(String pkg, String... tags){
 		cacheOfAllClasses.populate();
 		List<Set<Class<?>>> byTagSetList = new ArrayList<Set<Class<?>>>(tags.length);
 		for(int i=0; i<tags.length; i++){
@@ -63,14 +64,25 @@ public class SelectionUtils {
 		return result;
 	}
 	
-	
-	public static Map<String,Set<Class>> getMapClassesByTag(Set<Class<?>> taggedClasses){
-		HashMapWithSet<String,Class> map=new HashMapWithSet<>();
-		for(Class<?> c:taggedClasses){
-			if(!c.isAnnotationPresent(Tag.class)) throw new RuntimeException("Tag not present in class "+c.getName());
-			String tagName=c.getAnnotation(Tag.class).value();
-			map.putInSet(tagName,c);
+	public static Set<Class<?>> selectByPackageAndAllTags(String pkg, String... tags){
+		cacheOfAllClasses.populate();
+		List<Set<Class<?>>> setsToIntersect = new ArrayList<>();
+		
+		setsToIntersect.add(cacheOfAllClasses.getByPackage(pkg));
+		
+		for(String tag:tags){
+			setsToIntersect.add(cacheOfAllClasses.getByTag(tag));
 		}
-		return map;
+		
+		UtilForCollenctions.orderCollectionsBySize((List<Collection>)(Object)setsToIntersect);
+
+		Set<Class<?>> setRemaininElements = new HashSet<>();
+		setRemaininElements.addAll(setsToIntersect.get(0));
+		for(Set<Class<?>> set:setsToIntersect){
+			setRemaininElements = UtilForCollenctions.intersectionOfSets(setRemaininElements, set);
+		}
+		
+		return setRemaininElements;
 	}
+	
 }
