@@ -1,7 +1,10 @@
 package com.sambccd.ProjectStructure.utils;
 
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -12,7 +15,7 @@ import com.sambccd.ProjectStructure.selection.ObjectType;
 
 public class ClassCacheMap {
 	private HashMapWithSet<String, Class<?>> cacheByTag;
-	private HashMapWithSet<String, Class<?>> cacheByPackage;
+	private ThreeMapWithSet<String, Class<?>> cacheByPackageSorted;
 	//private HashMapWithSet<ObjectType, Class<?>> cacheByType;
 	private String mainPackage;
 	public ClassCacheMap(String pkg){
@@ -21,7 +24,7 @@ public class ClassCacheMap {
 	
 	//-------------Internal Working--------
 	public void populate(){
-		if(cacheByTag != null && cacheByPackage != null){
+		if(cacheByTag != null && cacheByPackageSorted != null){
 			return;
 		}
 		resetCaches();
@@ -37,13 +40,13 @@ public class ClassCacheMap {
 			}
 			
 			//cache packages
-			cacheByPackage.putInSet(clss.getPackage().getName(), clss);
+			cacheByPackageSorted.putInSet(clss.getPackage().getName(), clss);
 		}
 	}
 	
 	private void resetCaches(){
 		cacheByTag = new HashMapWithSet<>();
-		cacheByPackage = new HashMapWithSet<>();
+		cacheByPackageSorted = new ThreeMapWithSet<>();
 		//cacheByType = new HashMapWithSet<>();
 	}
 	
@@ -52,6 +55,12 @@ public class ClassCacheMap {
 		Reflections r = new Reflections(ClasspathHelper.forPackage(mainPackage), new SubTypesScanner(false));
 		Set<Class<?>> classes = r.getSubTypesOf(Object.class);
 		return classes;
+	}
+	
+	//should be visible just for testing
+	SortedMap<String, Set<Class<?>>> getSubMapContainingSubPackages(String packageName){
+		//get the packages from the package with the . to the package with the /, however as the / is not valid of a package there will no be any packages with that name, and it is the next character after ".", so no other entries can be between "packageName." and "packageName/" except for the sub packages, that is what we are searching for
+		return cacheByPackageSorted.subMap(packageName+".", packageName+"/");
 	}
 	//---------------------------------
 	
@@ -67,13 +76,40 @@ public class ClassCacheMap {
 	}
 	
 	public Set<Class<?>> getByPackage(String packageName){
-		Set<Class<?>> classes = cacheByPackage.get(packageName);
-		if(classes==null){
-			return new HashSet<>();
-		} else {
-			return classes;
+		//TODO use getSubMapContainingSubPackages and then get actual package, i think it is the quickest way
+		SortedMap<String, Set<Class<?>>> mapWithSubpackages = getSubMapContainingSubPackages(packageName);
+		Set<Class<?>> classesInPackage = cacheByPackageSorted.get(packageName);
+		
+		if(mapWithSubpackages.isEmpty()){ //shortcut for selecting just one package, we don't need to do the addAll operator that takes O(n) time
+			if(classesInPackage==null){
+				return new HashSet<>();
+			} else {
+				return classesInPackage;
+			}
 		}
+		
+		//this can really be a bottleneck in terms of performances, when we deploy things we really need to find a better way, this takes O(n) time
+		//	have a look to Iterables(i think they can be chained) and Guava, if the set is not ordered and it just needs to be iterated then should be fine
+		Set<Class<?>> classInPkgAndSubPkg = new HashSet<>();
+		if(classesInPackage != null){
+			classInPkgAndSubPkg.addAll(classesInPackage);
+		}
+		
+		for(Set<Class<?>> classesInSubPkg:mapWithSubpackages.values()){
+			classInPkgAndSubPkg.addAll(classesInSubPkg);
+		}
+		
+		return classInPkgAndSubPkg;
 	}
 	
+	
 	//----------------------------------------------
+	
+	//--------for testing----------
+	
+	void setCacheByPackageSorted(ThreeMapWithSet<String, Class<?>> cacheByPackageSorted) {
+		this.cacheByPackageSorted = cacheByPackageSorted;
+	}
+	
+	//-----------------------------
 }

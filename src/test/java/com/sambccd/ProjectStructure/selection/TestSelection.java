@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import com.sambccd.ProjectStructure.testcode.testselection.bypackage.ClassOutsidePackage;
 import com.sambccd.ProjectStructure.testcode.testselection.bypackage.specialpackage.ClassInPackage;
+import com.sambccd.ProjectStructure.testcode.testselection.bypackage.specialpackage.subpackage.ClassInSubPackage;
 import com.sambccd.ProjectStructure.testcode.testselection.bypackageandtag.ClassOutsidePackageWithTag;
 import com.sambccd.ProjectStructure.testcode.testselection.bypackageandtag.ClassOutsidePackageWithDifferentTag;
 import com.sambccd.ProjectStructure.testcode.testselection.bypackageandtag.ClassOutsidePackageWithoutTag;
@@ -86,7 +87,6 @@ public class TestSelection {
 		assertFalse(selectedObjects.contains(ClassOutsidePackageWithoutTag.class));
 	}
 	
-
 	@Test
 	public void testSelectionByPackageAndMultipleTagsSub(){
 		//look at testcode.testselection.bypackageandtag to see the code being scan
@@ -102,6 +102,15 @@ public class TestSelection {
 		assertFalse(selectedObjects.contains(ClassOutsidePackageWithTag.class));
 		assertFalse(selectedObjects.contains(ClassOutsidePackageWithDifferentTag.class));
 		assertFalse(selectedObjects.contains(ClassOutsidePackageWithoutTag.class));
+	}
+	
+	@Test
+	public void testSelectionByPackageIncludeSubPackages(){
+		setSelectionSubPackage("bypackage");
+		String packagePath = mainPkg + ".bypackage.specialpackage";
+		Set<Class<?>> selectedObjects = SelectionUtils.selectByPackage(packagePath);
+		
+		assertTrue(selectedObjects.contains(ClassInSubPackage.class));
 	}
 	
 	public void setSelectionSubPackage(String subPkg){
